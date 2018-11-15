@@ -2317,13 +2317,13 @@ var DownloadAddonInstall = class extends AddonInstall {
 
         this.loadManifest(this.file).then(() => {
           /* Cliqz start */
-          if(this.addon.id === "cliqz@cliqz.com" || this.addon.id === "firefox@ghostery.com"){
+          /*if(this.addon.id === "cliqz@cliqz.com" || this.addon.id === "firefox@ghostery.com"){
               this._callInstallListeners("onInstallCancelled");
               EventDispatcher.instance.sendRequest({type: "Addons:PreventGhosteryCliqz", data:
               this.addon._repositoryAddon.creator.name});
-          }
+          }*/
           /* Cliqz end */
-          else if (this.addon.isCompatible) {
+          if (this.addon.isCompatible) {
             this.downloadCompleted();
           } else {
             // TODO Should we send some event here (bug 557716)?

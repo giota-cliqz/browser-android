@@ -241,10 +241,10 @@ var Addons = {
   // add check for should hidden addons
   _shouldBeHidden: function(addonId) {
     // hide theme, cliqz and ghostery addons
-    if (addonId === "android@cliqz.com" || addonId === "default-theme@mozilla.org"
-        || addonId === "firefox@ghostery.com") {
-        return true;
-    }
+//    if (addonId === "android@cliqz.com" || addonId === "default-theme@mozilla.org"
+//        || addonId === "firefox@ghostery.com") {
+//        return true;
+//    }
     return false;
   },
   /* Cliqz end */
