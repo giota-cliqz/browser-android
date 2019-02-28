@@ -1,13 +1,23 @@
 import React from 'react';
 import {AppRegistry, StyleSheet, Text, View, DeviceEventEmitter, NativeModules } from 'react-native';
-import SearchUI from 'browser-core/build/modules/mobile-cards-vertical/SearchUI';
+import SearchUI from 'browser-core/build/modules/mobile-cards/SearchUI';
+import SearchUIVertical from 'browser-core/build/modules/mobile-cards-vertical/SearchUI';
 import App from 'browser-core/build/modules/core/app';
 import { Provider as CliqzProvider } from 'browser-core/build/modules/mobile-cards/cliqz';
-import console from 'browser-core/build/modules/core/console';
+import { Provider as ThemeProvider } from 'browser-core/build/modules/mobile-cards-vertical/withTheme';
+
+const Bridge = NativeModules.Bridge;
 
 class Cliqz {
-  constructor(app) {
+  constructor(app, actions) {
     this.app = app;
+    this.app.modules['ui'] = {
+      action(action, ...args) {
+        return Promise.resolve().then(() => {
+          return actions[action](...args);
+        });
+      },
+    };
     this.mobileCards = app.modules['mobile-cards'].background.actions;
     this.geolocation = app.modules['geolocation'].background.actions;
     this.search = app.modules['search'].background.actions;
@@ -16,9 +26,23 @@ class Cliqz {
 }
 
 class BrowserCoreApp extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { results: [], cliqz: null };
+  state = {
+    results: [],
+    cliqz: null,
+    config: {
+      theme: 'light',
+    },
+  }
+
+  actions = {
+    changeTheme: theme => {
+      this.setState(prevState => ({
+        config: {
+          ...prevState.config,
+          theme
+        }
+      }));
+    }
   }
 
   onAction = ({ module, action, args, id }) => {
@@ -29,20 +53,23 @@ class BrowserCoreApp extends React.Component {
         }
         return response;
       });
-    });
+    }).catch(e => console.error(e));
   }
 
-  componentWillMount() {
+  async componentWillMount() {
     const app = new App();
+    let cliqz;
+    const config = await Bridge.getConfig();
+    this.setState({ config });
     this.loadingPromise = app.start().then(async () => {
       await app.ready();
-      cliqz = new Cliqz(app);
+      cliqz = new Cliqz(app, this.actions);
       this.setState({
         cliqz,
       });
       app.events.sub('search:results', (results) => {
         this.setState({ results })
-      })
+      });
     });
     DeviceEventEmitter.addListener('action', this.onAction);
   }
@@ -50,7 +77,6 @@ class BrowserCoreApp extends React.Component {
   render() {
     const results = this.state.results.results || [];
     const meta = this.state.results.meta || {};
-    const theme = this.state.theme;
     return (
       <View style={styles.container}>
         {
@@ -58,7 +84,9 @@ class BrowserCoreApp extends React.Component {
           ? null
           : (
             <CliqzProvider value={this.state.cliqz}>
-              <SearchUI results={results} meta={meta} theme="light" />
+              <ThemeProvider value={this.state.config.theme}>
+                <SearchUIVertical results={results} meta={meta} />
+              </ThemeProvider>
             </CliqzProvider>
           )
         }

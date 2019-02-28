@@ -96,5 +96,15 @@ public class BridgePackage implements ReactPackage {
         public void replyToAction(int hash, ReadableMap response) {
             SearchBackground.replyToAction(hash, response);
         }
+
+        //TODO create private methods for getTheme and getCardStyle
+
+        @ReactMethod
+        public void getConfig(final Promise promise) {
+            final WritableMap outData = Arguments.createMap();
+            outData.putString("theme", "light");
+            outData.putString("cardStyle", "vertical");
+            promise.resolve(outData);
+        }
     }
 }
