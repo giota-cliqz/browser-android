@@ -13,6 +13,8 @@ import App from 'browser-core/build/modules/core/app';
 import { Provider as CliqzProvider } from 'browser-core/build/modules/mobile-cards/cliqz';
 import { Provider as ThemeProvider } from 'browser-core/build/modules/mobile-cards-vertical/withTheme';
 
+
+
 const Bridge = NativeModules.Bridge;
 class Cliqz {
   constructor(app, actions) {
